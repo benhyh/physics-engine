@@ -54,7 +54,7 @@ coverage/
 .tmp/
 
 # Documentation
-docs/_build/
+docs/
 site/
 
 # Misc
@@ -72,3 +72,7 @@ site/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Markdown Files
+NOTES.md
+TODO.md
