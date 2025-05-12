@@ -1,0 +1,15 @@
+{
+    "entryPoints": ["src/**/*.ts"],
+    "out": "docs",
+    "exclude": ["**/*.test.ts", "**/*.spec.ts"],
+    "theme": "default",
+    "name": "Physics Engine Documentation",
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeExternals": true,
+    "includeVersion": true,
+    "hideGenerator": true,
+    "categorizeByGroup": true,
+    "categoryOrder": ["Core", "Utils", "*"],
+    "readme": "README.md"
+} 
