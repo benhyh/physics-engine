@@ -3,7 +3,8 @@
  * Each force type must implement the apply method.
  */
 
-import { RigidBody } from "./RigidBody";
+import { RigidBody } from "../../RigidBody";
+import { Vector } from "../../Vector";
 
 export enum ForceType {
     GRAVITY,

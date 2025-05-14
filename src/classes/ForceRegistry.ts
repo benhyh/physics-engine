@@ -1,4 +1,4 @@
-import { Force } from "./Force";
+import { Force } from "./forces/base/Force";
 import { RigidBody } from "./RigidBody";
 
 /**
