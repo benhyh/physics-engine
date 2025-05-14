@@ -4,45 +4,93 @@
  * 1. Spring constant
  * 2. Rest length 
  * 3. Handle torque generation based on attachement point
- * 
- * TODO:
- * 1. Add attachment points
- * 2. Add a second body or anchor point
- * 3. Calculate the actual distance vector between attachment points
- * 4. Apply forces at the attachment points (which creates torque)
  */
 
 import { Force, ForceType } from "../base/Force";
 import { Vector } from "../../Vector";
 import { RigidBody } from "../../RigidBody";
 
+interface Attachment {
+    body: RigidBody;
+    localPoint: Vector;  
+}
+
 export class SpringForce extends Force {
     private springConstant: number;
     private restLength: number;
-
+    private firstAttachment: Attachment;
+    private secondAttachment?: Attachment;
+    
     constructor(
         restLength: number = 0,
         springConstant: number = 1,
-        initialDisplacement: number = 0
+        firstBody: RigidBody = new RigidBody(),
+        firstLocalPoint: Vector = new Vector(0, 0),
+        secondBody?: RigidBody,
+        secondLocalPoint: Vector = new Vector(0, 0)
     ) {
-        const displacement = initialDisplacement - restLength;
-        const forceMagnitude = Math.abs(springConstant * displacement);
-        const forceDirection = displacement > 0 ? new Vector(-1, 0) : new Vector(1, 0);
+        super(ForceType.SPRING, 0, new Vector(0, 0));
         
-        super(ForceType.SPRING, forceMagnitude, forceDirection);
         this.restLength = restLength;
         this.springConstant = springConstant;
+        this.firstAttachment = {
+            body: firstBody,
+            localPoint: firstLocalPoint
+        };
+        
+        if (secondBody) {
+            this.secondAttachment = {
+                body: secondBody,
+                localPoint: secondLocalPoint
+            };
+        }
+    }
+
+    /**
+     * Gets the world position of an attachment point
+     */
+    private getWorldAttachmentPoint(attachment: Attachment): Vector {
+        // Transform local point to world coordinates considering body rotation
+        return attachment.localPoint.rotate(attachment.body.rotation).add(attachment.body.position);
     }
 
     apply(body: RigidBody): void {
-        const currentLength = body.position.x; 
-        const displacement = currentLength - this.restLength;
+        // Get world positions of attachment points
+        const firstWorldPoint = this.getWorldAttachmentPoint(this.firstAttachment);
+        let secondWorldPoint: Vector;
         
-        const forceMagnitude = this.springConstant * displacement;
+        if (this.secondAttachment) {
+            secondWorldPoint = this.getWorldAttachmentPoint(this.secondAttachment);
+        } else {
+            secondWorldPoint = firstWorldPoint.add(new Vector(this.restLength, 0));
+        }
+
+        const displacement = secondWorldPoint.subtract(firstWorldPoint);
+        const currentLength = displacement.magnitude();
+        const stretch = currentLength - this.restLength;
         
-        const springForce = new Vector(-forceMagnitude, 0);
+        const forceMagnitude = this.springConstant * stretch;
         
-        body.addForce(springForce);
+        const forceDirection = displacement.normalize();
+        
+        const springForce = forceDirection.multiply(forceMagnitude);
+
+        if (body === this.firstAttachment.body) {
+            const r1 = firstWorldPoint.subtract(body.position);
+            const torque1 = r1.cross(springForce);
+            
+            body.addForce(springForce);
+            body.addTorque(torque1);
+        }
+        
+        if (this.secondAttachment && body === this.secondAttachment.body) {
+            const oppositeForce = springForce.multiply(-1);
+            const r2 = secondWorldPoint.subtract(body.position);
+            const torque2 = r2.cross(oppositeForce);
+            
+            body.addForce(oppositeForce);
+            body.addTorque(torque2);
+        }
     }
 
     getMagnitude(): number {
@@ -66,5 +114,43 @@ export class SpringForce extends Force {
 
     getSpringConstant(): number {
         return this.springConstant;
-    } 
+    }
+
+    getFirstAttachment(): Attachment {
+        return this.firstAttachment;
+    }
+
+    setFirstAttachment(body: RigidBody, localPoint: Vector): void {
+        this.firstAttachment = {
+            body,
+            localPoint
+        };
+    }
+
+    getSecondAttachment(): Attachment | undefined {
+        return this.secondAttachment;
+    }
+
+    setSecondAttachment(body: RigidBody, localPoint: Vector): void {
+        this.secondAttachment = {
+            body,
+            localPoint
+        };
+    }
+
+    getRestLength(): number {
+        return this.restLength;
+    }
+    
+    getDistance(): Vector {
+        const firstWorldPoint = this.getWorldAttachmentPoint(this.firstAttachment);
+        
+        if (this.secondAttachment) {
+            const secondWorldPoint = this.getWorldAttachmentPoint(this.secondAttachment);
+            return secondWorldPoint.subtract(firstWorldPoint);
+        } else {
+            const fixedPoint = firstWorldPoint.add(new Vector(this.restLength, 0));
+            return fixedPoint.subtract(firstWorldPoint);
+        }
+    }
 }
