@@ -14,15 +14,10 @@ export class DampingForce extends Force {
     }
 
     apply(body: RigidBody): void {
-        // TODO:
-        // 1. get the current velocity of the body
-        // 2. calculates damping force using F = -cv
-        // 3. applies this force to the body
         const velocity = body.velocity;
         const force = velocity.multiply(this.dampingCoefficient * -1);
         body.addForce(force);
     }
-
     
     setDampingCoefficient(dampingCoefficient: number): void {
         this.dampingCoefficient = dampingCoefficient;
@@ -31,4 +26,6 @@ export class DampingForce extends Force {
     getDampingCoefficient(): number {
         return this.dampingCoefficient;
     }
+
+    
 }
