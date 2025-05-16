@@ -1,15 +1,20 @@
 {
-    "entryPoints": ["src/**/*.ts"],
+    "entryPoints": ["src/classes/**/*.ts", "src/sims/**/*.ts"],
     "out": "docs",
-    "exclude": ["**/*.test.ts", "**/*.spec.ts"],
-    "theme": "default",
-    "name": "Physics Engine Documentation",
+    "exclude": [
+        "**/*.test.ts", 
+        "**/*.spec.ts", 
+        "**/__tests__/**",
+        "**/node_modules/**"
+    ],
+    "excludeExternals": true,
     "excludePrivate": true,
     "excludeProtected": true,
-    "excludeExternals": true,
+    "theme": "default",
+    "name": "Physics Engine Documentation",
     "includeVersion": true,
     "hideGenerator": true,
     "categorizeByGroup": true,
-    "categoryOrder": ["Core", "Utils", "*"],
+    "categoryOrder": ["Core", "Forces", "Integration", "Utils", "*"],
     "readme": "README.md"
 } 

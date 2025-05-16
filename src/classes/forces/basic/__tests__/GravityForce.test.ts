@@ -33,7 +33,9 @@ describe('GravityForce', () => {
     });
 
     test('should apply correct force to rigid body', () => {
-        const initialForce = body.forceAccumulator;
+        // Store initial force for comparison (commented out to avoid unused variable warning)
+        // const initialForce = body.forceAccumulator;
+        
         gravityForce.apply(body);
         const appliedForce = body.forceAccumulator;
         

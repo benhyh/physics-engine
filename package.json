@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docs": "typedoc --entryPointStrategy expand --entryPoints src/classes/Vector.ts src/classes/RigidBody.ts src/classes/ForceRegistry.ts src/classes/forces/base/Force.ts src/classes/forces/basic/DampingForce.ts src/classes/forces/basic/GravityForce.ts src/classes/forces/basic/SpringForce.ts src/classes/integration/Euler.ts src/classes/integration/VelocityVerlet.ts",
+    "docs:watch": "typedoc --watch"
   },
   "dependencies": {
     "@radix-ui/react-separator": "^1.0.3",
@@ -22,6 +24,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/node": "^20.11.30",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
@@ -34,6 +37,7 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
+    "typedoc": "^0.28.4",
     "typescript": "^5.2.2",
     "vite": "^5.1.6"
   }

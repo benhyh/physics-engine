@@ -1,17 +1,27 @@
 /**
- * Implement Hooke's Law F = -kx
- * Make it configurable with:
- * 1. Spring constant
- * 2. Rest length 
- * 3. Handle torque generation based on attachement point
+ * Implementation of Hooke's Law F = -kx which models a spring force
+ * 
+ * This class simulates spring behavior between rigid bodies or between a rigid body 
+ * and a fixed point. It handles:
+ * 1. Spring constant (k) - stiffness of the spring
+ * 2. Rest length - natural length of the spring when no forces are applied 
+ * 3. Torque generation based on attachment points
+ * 
+ * @category Forces
  */
 
 import { Force, ForceType } from "../base/Force";
 import { Vector } from "../../Vector";
 import { RigidBody } from "../../RigidBody";
 
+/**
+ * Represents an attachment point for a spring
+ * @interface Attachment
+ */
 interface Attachment {
+    /** The rigid body the spring is attached to */
     body: RigidBody;
+    /** The local point of attachment relative to the body's center */
     localPoint: Vector;  
 }
 
@@ -21,6 +31,15 @@ export class SpringForce extends Force {
     private firstAttachment: Attachment;
     private secondAttachment?: Attachment;
     
+    /**
+     * Creates a new spring force
+     * @param restLength - Natural length of the spring when no forces are applied
+     * @param springConstant - Stiffness of the spring (k in Hooke's Law)
+     * @param firstBody - First rigid body to attach the spring to
+     * @param firstLocalPoint - Attachment point on the first body (in local coordinates)
+     * @param secondBody - Optional second rigid body to attach the spring to
+     * @param secondLocalPoint - Attachment point on the second body (in local coordinates)
+     */
     constructor(
         restLength: number = 0,
         springConstant: number = 1,
@@ -48,12 +67,22 @@ export class SpringForce extends Force {
 
     /**
      * Gets the world position of an attachment point
+     * @param attachment - The attachment to transform to world coordinates
+     * @returns The attachment point in world coordinates
+     * @private
      */
     private getWorldAttachmentPoint(attachment: Attachment): Vector {
         // Transform local point to world coordinates considering body rotation
         return attachment.localPoint.rotate(attachment.body.rotation).add(attachment.body.position);
     }
 
+    /**
+     * Applies the spring force to a rigid body
+     * @param body - The rigid body to apply the force to
+     * 
+     * Pre-condition: body is a valid RigidBody and matches one of the attachments
+     * Post-condition: Force and torque are added to the body's accumulators
+     */
     apply(body: RigidBody): void {
         // Get world positions of attachment points
         const firstWorldPoint = this.getWorldAttachmentPoint(this.firstAttachment);
@@ -93,14 +122,27 @@ export class SpringForce extends Force {
         }
     }
 
+    /**
+     * Gets the current magnitude of the spring force
+     * @returns The magnitude of the spring force
+     */
     getMagnitude(): number {
         return this.magnitude;
     }
 
+    /**
+     * Gets the current direction of the spring force
+     * @returns The direction of the spring force as a unit vector
+     */
     getDirection(): Vector {
         return this.direction;
     }
 
+    /**
+     * Sets the spring constant (stiffness)
+     * @param newSpringConstant - The new spring constant value
+     * @throws {Error} If spring constant is invalid
+     */
     setSpringConstant(newSpringConstant: number): void {
         if (!newSpringConstant) {
             throw new Error('Invalid spring constant.')
@@ -112,14 +154,27 @@ export class SpringForce extends Force {
         this.direction = newSpringForce.normalize();
     }
 
+    /**
+     * Gets the current spring constant
+     * @returns The spring constant (k)
+     */
     getSpringConstant(): number {
         return this.springConstant;
     }
 
+    /**
+     * Gets the first attachment of the spring
+     * @returns The first attachment information
+     */
     getFirstAttachment(): Attachment {
         return this.firstAttachment;
     }
 
+    /**
+     * Sets the first attachment point
+     * @param body - The rigid body to attach to
+     * @param localPoint - The attachment point in body-local coordinates
+     */
     setFirstAttachment(body: RigidBody, localPoint: Vector): void {
         this.firstAttachment = {
             body,
@@ -127,10 +182,19 @@ export class SpringForce extends Force {
         };
     }
 
+    /**
+     * Gets the second attachment of the spring if it exists
+     * @returns The second attachment information or undefined if connected to a fixed point
+     */
     getSecondAttachment(): Attachment | undefined {
         return this.secondAttachment;
     }
 
+    /**
+     * Sets the second attachment point
+     * @param body - The rigid body to attach to
+     * @param localPoint - The attachment point in body-local coordinates
+     */
     setSecondAttachment(body: RigidBody, localPoint: Vector): void {
         this.secondAttachment = {
             body,
@@ -138,10 +202,18 @@ export class SpringForce extends Force {
         };
     }
 
+    /**
+     * Gets the rest length of the spring
+     * @returns The natural length of the spring when no forces are applied
+     */
     getRestLength(): number {
         return this.restLength;
     }
     
+    /**
+     * Gets the current vector distance between the spring's attachment points
+     * @returns A vector from the first attachment to the second attachment
+     */
     getDistance(): Vector {
         const firstWorldPoint = this.getWorldAttachmentPoint(this.firstAttachment);
         

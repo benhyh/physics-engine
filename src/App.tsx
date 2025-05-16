@@ -11,7 +11,7 @@ function App() {
         <h1 className="text-4xl md:text-5xl font-bold mb-6">2D engine for the web</h1>
         <div className="flex items-center justify-center gap-3 text-lg">
           <a
-            href="https://github.com/liabru/matter-js"
+            href="https://github.com/benhyh/physics-engine"
             className="flex items-center hover:underline"
             target="_blank"
             rel="noreferrer"
@@ -20,7 +20,7 @@ function App() {
             github
           </a>
           <span className="text-gray-400">•</span>
-          <a href="/docs" className="hover:underline">
+          <a href="/docs/index" className="hover:underline">
             docs
           </a>
           <span className="text-gray-400">•</span>

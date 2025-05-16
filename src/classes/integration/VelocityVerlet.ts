@@ -1,29 +1,56 @@
+/**
+ * Implements Velocity Verlet integration for physics simulation
+ * 
+ * Velocity Verlet is a second-order method that provides better accuracy and stability
+ * than basic Euler integration. It handles position and velocity updates with improved
+ * energy conservation for physical simulations.
+ * 
+ * The method calculates new positions using current velocity and acceleration,
+ * then updates velocity using the average of current and new acceleration.
+ * 
+ * @category Integration
+ */
+
 import { Vector } from "../Vector";
 import { RigidBody } from "../RigidBody";
 
+/**
+ * Represents the complete state of a rigid body at a point in time
+ * @interface State
+ */
 interface State {
+    /** Position vector */
     position: Vector;
+    /** Velocity vector */
     velocity: Vector;
+    /** Acceleration vector */
     acceleration: Vector;
+    /** Rotation angle in radians */
     rotation: number;
+    /** Angular velocity in radians per second */
     angularVelocity: number;
+    /** Angular acceleration in radians per second squared */
     angularAcceleration: number;
 }
 
 export class VelocityVerlet {
     /**
-     * Verlet Integration
-     * x(t + ∆t) = 2x(t) - x(t - ∆t) + a(t)∆t^2
+     * Integrates a rigid body's motion using Velocity Verlet method
      * 
-     * (t + ∆t) represents the next position
-     * x(t) represents current position
-     * (t - ∆t) represents previous position
-     * a(t) represents current acceleration
-     * ∆t = time between updates i.e ∆t
+     * The algorithm follows these steps:
+     * 1. x(t + ∆t) = x(t) + v(t)∆t + (1/2)a(t)∆t²
+     * 2. Calculate new forces/accelerations at the new position
+     * 3. v(t + ∆t) = v(t) + (1/2)(a(t) + a(t + ∆t))∆t
      * 
-     * @param body
-     * @param dt Time step in seconds
-     * @throws {Error} if dt is less than or equal to zero
+     * This provides more accurate results than Euler integration, especially
+     * for systems with conservative forces.
+     * 
+     * @param body - The rigid body to integrate
+     * @param dt - Time step in seconds
+     * @throws {Error} If dt is less than or equal to zero
+     * 
+     * Pre-condition: body is a valid RigidBody and dt > 0
+     * Post-condition: body's position and velocity are updated and accumulators are cleared
      */
     integrate(body: RigidBody, dt: number): void {
         if (dt <= 0) throw new Error("Time step must be greater than zero.");
@@ -57,12 +84,17 @@ export class VelocityVerlet {
     
     /**
      * Integrates a state forward in time using Velocity Verlet
-     * Useful for predicting future states without modifying the actual body
      * 
-     * @param state Current state
-     * @param dt Time step
+     * Useful for predicting future states without modifying an actual body.
+     * Particularly valuable for collision prediction and detection systems.
+     * 
+     * @param state - Current state
+     * @param dt - Time step in seconds
      * @returns New state after integration
      * @throws {Error} If dt is less than or equal to zero
+     * 
+     * Pre-condition: state contains valid values and dt > 0
+     * Post-condition: returns a new state object with updated values
      */
     integrateState(state: State, dt: number): State {
         if (dt <= 0) throw new Error("Time step must be greater than zero");
