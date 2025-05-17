@@ -1,3 +1,4 @@
+import { Shape } from "./shapes/base/Shape";
 import { Vector } from "./Vector";
 
 /**
@@ -91,6 +92,13 @@ export class RigidBody {
     public angularDamping: number;
 
     /**
+     * The shape of the body.
+     * 
+     * This is used to calculate the moment of inertia and center of mass.
+     */
+    public shape?: Shape;
+
+    /**
      * Creates a new rigid body with the specified properties
      * 
      * @param mass - The mass of the body in kilograms
@@ -103,7 +111,7 @@ export class RigidBody {
      * const body = new RigidBody(2, new Vector(100, 200));
      * ```
      */
-    constructor(mass: number = 1, position: Vector = new Vector(0,0), momentOfInertia: number = 1) {
+    constructor(mass: number = 1, position: Vector = new Vector(0,0), momentOfInertia: number = 1, shape?: Shape) {
         this.mass = mass;
         this.position = position;
         this.momentOfInertia = momentOfInertia;
@@ -116,6 +124,7 @@ export class RigidBody {
         this.torqueAccumulator = 0;
         this.linearDamping = 0.99;
         this.angularDamping = 0.99;
+        this.shape = shape;
     }
 
     /**

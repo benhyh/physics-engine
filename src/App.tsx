@@ -16,7 +16,7 @@ function App() {
             target="_blank"
             rel="noreferrer"
           >
-            <Github className="mr-1 h-5 w-5" />
+            <Github className="mr-1 h-5 w-5"  />
             github
           </a>
           <span className="text-gray-400">•</span>
