@@ -34,7 +34,7 @@ export enum ShapeType {
     TRAPEZOID
 }
 
-interface AABB {
+export interface AABB {
     minX: number;
     minY: number;
     maxX: number;

@@ -206,7 +206,6 @@ function satTest(a: Rectangle, b: Rectangle): Vector | false {
         console.log(finalB);
         clearInterval(timer);
         return false;
-    }
 }
 
 // Canvas setup
