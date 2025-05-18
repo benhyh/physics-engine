@@ -42,7 +42,7 @@ export interface AABB {
 }
 
 export abstract class Shape {
-    protected position: Vector;
+    protected position: VCVector;
     protected type: ShapeType;
     protected rotation: Vector;
 

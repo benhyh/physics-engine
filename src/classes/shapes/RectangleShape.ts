@@ -45,8 +45,8 @@ export class RectangleShape extends Shape {
         this.width = width;
     }
 
-    getHeight(height: number): void {
-        this.height = height;
+    getHeight(): number {
+        return this.height;
     }
 
     setHeight(height: number): void {

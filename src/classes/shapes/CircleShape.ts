@@ -1,8 +1,3 @@
-/**
- * Properties: center position, radius
- * Collison methods for circle-cricle
- */
-
 import { Shape, ShapeType, AABB } from "./base/Shape";
 import { Vector } from "../Vector";
 import { RectangleShape } from "./RectangleShape";
@@ -61,17 +56,58 @@ export class CircleShape extends Shape {
 
     }
 
-    getAABB(): AABB {}
+    getAABB(): AABB {
+        return {
+            minX: 0,
+            minY: 0,
+            maxX: 0,
+            maxY: 0
+        }
+    }
 
-    intersectsRectangle(shape: RectangleShape): boolean {
+    /**
+     * Standard rectangle-AABB collision 
+     * 
+     * 1. Find the closest point on the rectnagle to the circle.
+     * - If the circle is to the left of rectnagle, closest X is left edge
+     * - If circle is 
+     * 
+     * @param rectangle 
+     * @returns goolean
+     */
+    intersectsRectangle(rectangle: RectangleShape): boolean {
+        const circlePosition = this.center;
+        let testX = circlePosition.x;
+        let testY = circlePosition.y;
+
+        const rectanglePosition = rectangle.getPosition();
+        const rectangleWidth = rectangle.getWidth();
+        const rectangleHeight = rectangle.getHeight();
+        const rectangleX = rectanglePosition.x;
+        const rectangleY = rectanglePosition.y;
+
+        if (testX < rectangleX) testX = rectangleX;
+        else if (testX > (rectangleX + rectangleWidth)) testX = rectangleX + rectangleWidth;
+
+        if (testY < rectangleY) testY = rectangleY;
+        else if (testY > (rectangleY + rectangleHeight)) testY = rectangleY + rectangleHeight;
+
+        const distX = circlePosition.x - testX;
+        const distY = circlePosition.y - testY;
+        const distance = Math.sqrt((distX * distX) + (distY * distY));
+
+        if (distance <= this.radius) {
+            return true;
+        }
+
         return false;
     }
 
-    intersectsTrapezoid(shape: TrapezoidShape): boolean {
+    intersectsTrapezoid(trapezoid: TrapezoidShape): boolean {
         return false;
     }
     
-    intersectsPolygon(shape: PolygonShape): boolean {
+    intersectsPolygon(polygon: PolygonShape): boolean {
         return false;
     }
 }
