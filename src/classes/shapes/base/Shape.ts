@@ -21,6 +21,7 @@
  */
 
 import { Vector } from "@/classes/Vector";
+import { RigidBody } from "../../RigidBody";
 
 
 /**
@@ -45,6 +46,7 @@ export abstract class Shape {
     protected position: Vector;
     protected type: ShapeType;
     protected rotation: Vector;
+    protected parent: RigidBody | null;
 
     constructor (
         type: ShapeType,
@@ -54,6 +56,7 @@ export abstract class Shape {
         this.type = type;
         this.position = position;
         this.rotation = rotation;
+        this.parent = null;
     }
 
     getType(): ShapeType {
@@ -66,6 +69,18 @@ export abstract class Shape {
 
     getRotation(): Vector {
         return this.rotation;
+    }
+
+    setPosition(position: Vector): void {
+        this.position = position;
+    }
+
+    setParent(body: RigidBody): void {
+        this.parent = body;
+    }
+
+    getParent(): RigidBody | null {
+        return this.parent;
     }
 
     abstract contains(point: Vector): boolean;
