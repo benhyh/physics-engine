@@ -42,7 +42,7 @@ export interface AABB {
 }
 
 export abstract class Shape {
-    protected position: VCVector;
+    protected position: Vector;
     protected type: ShapeType;
     protected rotation: Vector;
 
@@ -73,4 +73,8 @@ export abstract class Shape {
     abstract intersects(shape: Shape): boolean;
 
     abstract getAABB(): AABB;
+
+    abstract getCollisionAxes(shape: Shape): Vector[];
+
+    abstract project(axis: Vector): { min: number, max: number };
 }   

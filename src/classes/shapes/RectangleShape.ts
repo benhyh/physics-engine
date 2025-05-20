@@ -59,4 +59,24 @@ export class RectangleShape extends Shape {
 
     getAABB(): AABB {}
 
+    project(axis: Vector): { min: number, max: number } {
+        // Get the four corners of the rectangle
+        const corners = [
+            this.position,
+            new Vector(this.position.x + this.width, this.position.y),
+            new Vector(this.position.x + this.width, this.position.y + this.height),
+            new Vector(this.position.x, this.position.y + this.height)
+        ];
+
+        let min = Infinity;
+        let max = -Infinity;
+
+        for (const corner of corners) {
+            const projection = corner.dot(axis);
+            min = Math.min(min, projection);
+            max = Math.max(max, projection);
+        }
+
+        return { min, max };
+    }
 }

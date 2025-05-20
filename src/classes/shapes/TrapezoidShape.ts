@@ -78,4 +78,30 @@ export class TrapezoidShape extends Shape {
             maxY: this.position.y + this.height / 2
         };
     }
+
+    project(axis: Vector): { min: number, max: number } {
+        // Get the four corners of the trapezoid
+        const topWidth = this.width;
+        const bottomWidth = this.width + (2 * this.slope * this.height);
+        
+        const corners = [
+            // Top corners
+            new Vector(this.position.x - topWidth/2, this.position.y - this.height/2),
+            new Vector(this.position.x + topWidth/2, this.position.y - this.height/2),
+            // Bottom corners
+            new Vector(this.position.x - bottomWidth/2, this.position.y + this.height/2),
+            new Vector(this.position.x + bottomWidth/2, this.position.y + this.height/2)
+        ];
+
+        let min = Infinity;
+        let max = -Infinity;
+
+        for (const corner of corners) {
+            const projection = corner.dot(axis);
+            min = Math.min(min, projection);
+            max = Math.max(max, projection);
+        }
+
+        return { min, max };
+    }
 }

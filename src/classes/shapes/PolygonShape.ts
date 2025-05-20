@@ -88,4 +88,33 @@ export class PolygonShape extends Shape {
 
         return { minX, minY, maxX, maxY };
     }
+
+    getCollisionAxes(shape: Shape): Vector[] {
+        // Return perpediculars vectors to each edge
+        // To calculate a perpendicular vector, swap the x and y component,
+        // then we negate the x components
+
+    
+        const axes: Vector[] = []
+
+
+        return axes;
+    }   
+
+    project(axis: Vector): { min: number, max: number } {
+        // Takes  each vertex of the polygon
+        // Projects it onto the axis using dot product
+        // Finds min/max of all projections
+        
+        let min = Infinity;
+        let max = -Infinity;
+
+        for (const vertex of this.vertices) {
+            const projection = vertex.dot(axis);
+            min = Math.min(min, projection);
+            max = Math.max(max, projection);
+        }
+
+        return { min, max };
+    }
 }
