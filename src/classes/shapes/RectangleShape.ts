@@ -60,7 +60,6 @@ export class RectangleShape extends Shape {
     getAABB(): AABB {}
 
     project(axis: Vector): { min: number, max: number } {
-        // Get the four corners of the rectangle
         const corners = [
             this.position,
             new Vector(this.position.x + this.width, this.position.y),
@@ -78,5 +77,36 @@ export class RectangleShape extends Shape {
         }
 
         return { min, max };
+    }
+
+    getCorners(): Vector[] {
+        return [
+            // Top-left
+            new Vector(this.position.x, this.position.y),
+            // Top-right
+            new Vector(this.position.x + this.width, this.position.y),
+            // Bottom-right
+            new Vector(this.position.x + this.width, this.position.y + this.height),
+            // Bottom-left
+            new Vector(this.position.x, this.position.y + this.height)
+        ];
+    }
+
+    getCollisionAxes(): Vector[] {
+        const axes: Vector[] = [];
+        const corners = this.getCorners();
+        
+        for (let i = 0; i < corners.length; i++) {
+            const current = corners[i];
+            const next = corners[(i + 1) % corners.length];
+            
+            const edge = next.subtract(current);
+            
+            const normal = new Vector(-edge.y, edge.x).normalize();
+            
+            axes.push(normal);
+        }
+        
+        return axes;
     }
 }

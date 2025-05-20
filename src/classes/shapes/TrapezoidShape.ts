@@ -104,4 +104,36 @@ export class TrapezoidShape extends Shape {
 
         return { min, max };
     }
+
+    getCollisionAxes(): Vector[] {
+        const axes: Vector[] = [];
+        
+        const topWidth = this.width;
+        const bottomWidth = this.width + (2 * (this.height/this.slope));
+        
+        const corners = [
+            // Top corners
+            new Vector(this.position.x - topWidth/2, this.position.y - this.height/2),
+            new Vector(this.position.x + topWidth/2, this.position.y - this.height/2),
+            // Bottom corners
+            new Vector(this.position.x + bottomWidth/2, this.position.y + this.height/2),
+            new Vector(this.position.x - bottomWidth/2, this.position.y + this.height/2)
+        ];
+        
+        for (let i = 0; i < corners.length; i++) {
+            const current = corners[i];
+            const next = corners[(i + 1) % corners.length];
+            
+            // Calculate the edge vector by subtracting current from next
+            const edge = next.subtract(current);
+            
+            // Calculate the normal vector by rotating the edge 90 degrees
+            // In 2D, rotating (x,y) 90 degrees gives (-y,x)
+            const normal = new Vector(-edge.y, edge.x).normalize();
+            
+            axes.push(normal);
+        }
+        
+        return axes;
+    }
 }

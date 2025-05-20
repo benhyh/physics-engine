@@ -89,17 +89,26 @@ export class PolygonShape extends Shape {
         return { minX, minY, maxX, maxY };
     }
 
-    getCollisionAxes(shape: Shape): Vector[] {
-        // Return perpediculars vectors to each edge
-        // To calculate a perpendicular vector, swap the x and y component,
-        // then we negate the x components
-
-    
-        const axes: Vector[] = []
-
-
+    getCollisionAxes(): Vector[] {
+        const axes: Vector[] = [];
+        
+        // For each edge, calculate its normal vector
+        for (let i = 0; i < this.vertices.length; i++) {
+            const current = this.vertices[i];
+            const next = this.vertices[(i + 1) % this.vertices.length];
+            
+            // Get edge vector
+            const edge = next.subtract(current);
+            
+            // Calculate normal (perpendicular) vector
+            // For a 2D vector (x,y), the normal is (-y,x)
+            const normal = new Vector(-edge.y, edge.x).normalize();
+            
+            axes.push(normal);
+        }
+      
         return axes;
-    }   
+    }
 
     project(axis: Vector): { min: number, max: number } {
         // Takes  each vertex of the polygon

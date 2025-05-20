@@ -126,15 +126,6 @@ export class CircleShape extends Shape {
      * 
      * 1st test: a line where the projections (shadows) of the shape does not overlap is called a separation axis.
      *
-     * 1. determine the axes to test (this would require spatial partioning or a specific grid to text axes)
-     * 2. loop over the axes
-     * 3. projet both shape onto the axis
-     * 4. if they don't overlap then we can guarantee that the shapes do not overlap
-     * 
-     * TODO: 
-     * 1. missing spatial partitioning (grid to text axes)
-     * 2. then we need a method for objects to be able cast their projection
-     * 3. if the projecitons ovverlap among a multitude of axes then they overlap
      * 
      * @param polygon 
      * @returns boolean
@@ -144,8 +135,43 @@ export class CircleShape extends Shape {
     }
 
     getCollisionAxes(shape: Shape): Vector[] {
-        // For circle-polygon, return axis between circle center and closest vertex
-        // For circle-circle, return axis between centers
+        const axes: Vector[] = [];
+        
+        switch(shape.getType()) {
+            case ShapeType.CIRCLE:
+                // For circle-circle, the axis is the vector between centers
+                const otherCircle = shape as CircleShape;
+                const axis = otherCircle.center.subtract(this.center).normalize();
+                axes.push(axis);
+                break;
+                
+            case ShapeType.POLYGON:
+                // For circle-polygon, find closest vertex and use that as axis
+                const polygon = shape as PolygonShape;
+                const vertices = polygon.getVertices();
+                let closestVertex = vertices[0];
+                let minDist = Infinity;
+                
+                for (const vertex of vertices) {
+                    const dist = vertex.subtract(this.center).magnitude();
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closestVertex = vertex;
+                    }
+                }
+                
+                const circleAxis = closestVertex.subtract(this.center).normalize();
+                axes.push(circleAxis);
+                break;
+                R
+            case ShapeType.RECTANGLE:
+            case ShapeType.TRAPEZOID:
+                throw new Error("Not implemented");
+                // TODO: Rectangle - Use the axis to the closest corner
+                // TODO: Trapezoid - Use the axis to the closest vertex
+        }
+        
+        return axes;
     }
 
     project(axis: Vector): { min: number, max: number } {
