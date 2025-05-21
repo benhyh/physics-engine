@@ -163,7 +163,7 @@ export class CircleShape extends Shape {
                 const circleAxis = closestVertex.subtract(this.center).normalize();
                 axes.push(circleAxis);
                 break;
-                R
+                
             case ShapeType.RECTANGLE:
             case ShapeType.TRAPEZOID:
                 throw new Error("Not implemented");

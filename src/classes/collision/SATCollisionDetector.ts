@@ -1,3 +1,20 @@
+/**
+ * Implements the Separating Axis Theorem (SAT) for collision detection.
+ * 
+ * SAT is a method to determine if two convex shapes are intersecting.
+ * The theorem states that if you can find a line (axis) where the projections
+ * of two shapes don't overlap, then the shapes are not colliding.
+ * 
+ * The detection process:
+ * 1. Get all potential separating axes from both shapes
+ * 2. Project both shapes onto each axis
+ * 3. Check for overlap in the projections
+ * 4. If any axis shows no overlap, shapes are not colliding
+ * 5. If all axes show overlap, shapes are colliding
+ * 
+ * @category Core
+ */
+
 import { Shape, ShapeType } from "../shapes/base/Shape";
 import { CollisionInfo } from "./CollisionInfo";
 import { Vector } from "../Vector";
@@ -7,6 +24,15 @@ import { RectangleShape } from "../shapes/RectangleShape";
 import { TrapezoidShape } from "../shapes/TrapezoidShape";
 
 export class SATCollisionDetector {
+    /**
+     * Detects collision between two shapes using SAT
+     * @param shapeA - First shape to check
+     * @param shapeB - Second shape to check
+     * @returns CollisionInfo if shapes are colliding, null otherwise
+     * 
+     * Pre-condition: Both shapes must be valid
+     * Post-condition: Returns valid collision info or null
+     */
     detectCollision(shapeA: Shape, shapeB: Shape): CollisionInfo | null {
         const axes = this.getShapesAxes(shapeA, shapeB);
 
@@ -43,7 +69,15 @@ export class SATCollisionDetector {
         );
     }
   
-    // Helper methods
+    /**
+     * Gets all potential separating axes from both shapes
+     * @param shapeA - First shape
+     * @param shapeB - Second shape
+     * @returns Array of potential separating axes
+     * 
+     * Pre-condition: Both shapes must be valid
+     * Post-condition: Returns array of normalized axis vectors
+     */
     private getShapesAxes(shapeA: Shape, shapeB: Shape): Vector[] {
         const axes: Vector[] = [];
       
@@ -81,6 +115,16 @@ export class SATCollisionDetector {
         return axes;
     }
     
+    /**
+     * Projects both shapes onto a given axis
+     * @param axis - The axis to project onto
+     * @param shapeA - First shape
+     * @param shapeB - Second shape
+     * @returns Projection ranges for both shapes
+     * 
+     * Pre-condition: Axis must be normalized
+     * Post-condition: Returns valid projection ranges
+     */
     private projectShapes(axis: Vector, shapeA: Shape, shapeB: Shape): { 
         a: {min: number, max: number}, 
         b: {min: number, max: number} 
@@ -91,6 +135,15 @@ export class SATCollisionDetector {
         };
     }
 
+    /**
+     * Checks for overlap between two projection ranges
+     * @param projectionA - First shape's projection range
+     * @param projectionB - Second shape's projection range
+     * @returns Overlap amount if projections overlap, null otherwise
+     * 
+     * Pre-condition: Projection ranges must be valid
+     * Post-condition: Returns positive number or null
+     */
     private checkOverlap(
         projectionA: {min: number, max: number}, 
         projectionB: {min: number, max: number}
@@ -105,6 +158,18 @@ export class SATCollisionDetector {
         );
     }
     
+    /**
+     * Finds the contact point between two colliding shapes
+     * @param shapeA - First shape
+     * @param shapeB - Second shape
+     * @param axis - The axis of minimum penetration
+     * @returns The contact point vector
+     * 
+     * Pre-condition: Shapes must be colliding
+     * Post-condition: Returns valid contact point
+     * 
+     * TODO: Implement proper contact point calculation
+     */
     private findContactPoint(shapeA: Shape, shapeB: Shape, axis: Vector): Vector {
         return new Vector(0, 0);
     }

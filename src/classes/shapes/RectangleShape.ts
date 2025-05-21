@@ -10,7 +10,7 @@
  * }
  */
 
-import { Shape, ShapeType } from "./base/Shape";
+import { Shape, ShapeType, AABB } from "./base/Shape";
 import { Vector } from "../Vector";
 
 export class RectangleShape extends Shape {
@@ -53,11 +53,22 @@ export class RectangleShape extends Shape {
         this.height = height;
     }
 
-    contains(): boolean {}
+    contains(): boolean {
+        return false;
+    }
 
-    intersects(): boolean {}
+    intersects(): boolean {
+        return false;
+    }
 
-    getAABB(): AABB {}
+    getAABB(): AABB {
+        return {
+            minX: this.position.x,
+            minY: this.position.y,
+            maxX: this.position.x + this.width,
+            maxY: this.position.y + this.height
+        }
+    }
 
     project(axis: Vector): { min: number, max: number } {
         const corners = [
