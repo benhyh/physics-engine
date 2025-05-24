@@ -32,7 +32,8 @@ export enum ShapeType {
     CIRCLE,
     POLYGON,
     RECTANGLE,
-    TRAPEZOID
+    TRAPEZOID,
+    AABB
 }
 
 export interface AABB {
@@ -82,14 +83,4 @@ export abstract class Shape {
     getParent(): RigidBody | null {
         return this.parent;
     }
-
-    abstract contains(point: Vector): boolean;
-
-    abstract intersects(shape: Shape): boolean;
-
-    abstract getAABB(): AABB;
-
-    abstract getCollisionAxes(shape: Shape): Vector[];
-
-    abstract project(axis: Vector): { min: number, max: number };
 }   

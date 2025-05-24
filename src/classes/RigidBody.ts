@@ -99,6 +99,27 @@ export class RigidBody {
     public shape?: Shape;
 
     /**
+     * The inverse mass of the body.
+     * 
+     * This is used to accelerate the body without having to know its mass.
+     */
+    public inverseMass: number;
+
+    /**
+     * The inverse inertia of the body.
+     * 
+     * This is used to rotate the body without having to know its inertia.
+     */
+    public inverseInertia: number;
+
+    /**
+     * The restitution of the body.
+     * 
+     * This is used to calculate the bounce of the body.
+     */
+    public restitution: number;
+
+    /**
      * Creates a new rigid body with the specified properties
      * 
      * @param mass - The mass of the body in kilograms
@@ -125,6 +146,9 @@ export class RigidBody {
         this.linearDamping = 0.99;
         this.angularDamping = 0.99;
         this.shape = shape;
+        this.inverseMass = 1 / mass;
+        this.inverseInertia = 1 / momentOfInertia;
+        this.restitution = 0.5;
     }
 
     /**
@@ -173,6 +197,7 @@ export class RigidBody {
         this.torqueAccumulator += torque;
     }
 
+    
     /**
      * Clears all accumulated forces and torques
      * 

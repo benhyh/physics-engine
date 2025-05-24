@@ -185,6 +185,10 @@ export class Vector {
         return new Vector(normalizedX, normalizedY);
     }
 
+    lengthSquared(): number {
+        return this.x * this.x + this.y * this.y;
+    }
+
     /**
      * Creates a string representation of the vector
      * @returns A string in the format "(x, y)"

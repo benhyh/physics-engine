@@ -5,6 +5,8 @@
 
 import { Shape, ShapeType } from "./base/Shape";
 import { Vector } from "@/classes/Vector";
+import { CircleShape } from "./CircleShape";
+import { PolygonShape } from "./PolygonShape";
 
 export interface AABB {
     minX: number;
@@ -24,9 +26,7 @@ export class AABBShape extends Shape {
         minY: number = 0,
         maxX: number = 1,
         maxY: number = 1
-    ) {
-        super(ShapeType.POLYGON);
-        this.minX = minX;
+        ) {        super(ShapeType.AABB);        this.minX = minX;
         this.minY = minY;
         this.maxX = maxX;
         this.maxY = maxY;
@@ -64,13 +64,24 @@ export class AABBShape extends Shape {
         this.maxY = maxY;
     }
 
-    project(axis: Vector): { min: number, max: number } {
-        const corners = [
+    getCorners(): Vector[] {
+        return [
             new Vector(this.minX, this.minY),
             new Vector(this.maxX, this.minY),
             new Vector(this.maxX, this.maxY),
             new Vector(this.minX, this.maxY)
         ];
+    }
+    
+    setCorners(corners: Vector[]): void {
+        this.minX = Math.min(...corners.map(corner => corner.x));
+        this.minY = Math.min(...corners.map(corner => corner.y));
+        this.maxX = Math.max(...corners.map(corner => corner.x));
+        this.maxY = Math.max(...corners.map(corner => corner.y));
+    }
+
+    project(axis: Vector): { min: number, max: number } {
+        const corners = this.getCorners();
 
         let min = Infinity;
         let max = -Infinity;
@@ -91,9 +102,107 @@ export class AABBShape extends Shape {
         ];
     }
 
-    contains(): boolean {}
+    /**
+     * Implement point containment check for AABB
+     * 
+     * This method determines if a given point (Vector) lies completely within
+     * the bounds of this Axis-Aligned Bounding Box using inclusive boundaries.
+     * 
+     * @param point - The Vector point to test for containment
+     * @returns boolean - true if point is inside this AABB, false otherwise
+     */
+    contains(point: Vector): boolean {
+        if (!point || typeof point.x !== 'number' || typeof point.y !== 'number') {
+            return false;
+        }
 
-    intersects(): boolean {}
+        if (!isFinite(point.x) || !isFinite(point.y)) {
+            return false;
+        }
+
+        if (this.minX > this.maxX || this.minY > this.maxY) {
+            return false; // Invalid AABB cannot contain any point
+        }
+
+        return (this.minX <= point.x && point.x <= this.maxX &&
+                this.minY <= point.y && point.y <= this.maxY);
+    }
+
+    /**
+     * TODO: Implement AABB intersection detection with other shapes
+     * 
+     * This method should determine if this AABB intersects/overlaps with another shape.
+     * The implementation should handle different shape types appropriately.
+     * 
+     * Shape type considerations:
+     * 1. AABB vs AABB: Use simple box-box overlap test
+     *    - Check if boxes overlap on both X and Y axes
+     *    - Overlap exists if: (this.minX <= other.maxX && this.maxX >= other.minX) &&
+     *                        (this.minY <= other.maxY && this.maxY >= other.minY)
+     * 
+     * 2. AABB vs Circle: Use circle-rectangle collision detection
+     *    - Find closest point on AABB to circle center
+     *    - Check if distance from circle center to closest point <= circle radius
+     *
+     * 3. AABB vs Polygon: Use Separating Axis Theorem (SAT)
+     *    - Test all edge normals of both shapes as potential separating axes
+     *    - If any axis separates the shapes, they don't intersecs
+     * 
+     * Performance considerations:
+     * - For AABB vs AABB, use fast axis-aligned overlap test (avoid SAT overhead)
+     * - Consider early exit strategies for non-overlapping bounding boxes
+     * 
+     * Edge cases: 
+     * - Handle degenerate shapes (zero area)
+     * - Shapes that are touching but not overlapping (decide if this counts as intersection)
+     * 
+     * @param shape - The other shape to test intersection against
+     * @returns boolean - true if shapes intersect, false otherwise
+     */
+    intersects(shape: Shape): boolean {
+        switch(shape.getType()) {
+                        case ShapeType.AABB:                const otherAABB = shape as AABBShape;                return ((this.minX <= otherAABB.maxX && this.maxX >= otherAABB.minX) &&                    (this.minY <= otherAABB.maxY && this.maxY >= otherAABB.minY))
+            case ShapeType.CIRCLE:
+                return this.intersectsCircle(shape as CircleShape);
+            case ShapeType.POLYGON:
+                return this.intersectsPolygon(shape as PolygonShape);
+            default:
+                return false;
+        }
+    } 
+
+    /**
+     * AABB vs Circle: Use circle-rectangle collision detection
+     * - Find closest point on AABB to circle center
+     * - CHeck if distance from circle center to closest point <= circle radius
+     * @param circle 
+     * @returns 
+     */
+    intersectsCircle(circle: CircleShape): boolean {
+        const coordinates = this.getAABB();
+        const center = circle.getCenter();
+        const radius = circle.getRadius();
+
+        const closestX = Math.min(coordinates.minX, Math.min(center.x, coordinates.maxX));
+        const closestY = Math.min(coordinates.minY, Math.min(center.y, coordinates.maxY));
+
+        const x = center.x - closestX;
+        const y = center.y - closestY;
+        const distance = Math.sqrt(x*x + y*y);
+
+        return distance <= radius;
+    }
+
+    /**
+     * 3. AABB vs Polygon: Use Separating Axis Theorem (SAT)
+     * - Test all edge normals of both shapes as potential separating axes
+     * If any axis separates the shapes, they don't intersects
+     * @param polygon 
+     * @returns 
+     */
+    intersectsPolygon(polygon: PolygonShape): boolean {
+        return false;
+    }
 
     getAABB(): AABB {
         return {

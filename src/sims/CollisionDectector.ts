@@ -21,8 +21,9 @@ import { isFinite } from "lodash";
  * Represents a pair of potentially colliding rigid bodies
  */
 export interface CollisionPair {
-    body1: RigidBody;
-    body2: RigidBody;
+    bodyA: RigidBody;
+    bodyB: RigidBody;
+    info: CollisionInfo;
 }
 
 export class CollisionDectector {
