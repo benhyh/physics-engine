@@ -10,6 +10,12 @@
 import { CollisionInfo } from "./CollisionInfo";
 import { Vector } from "../Vector";
 import { ShapeType } from "../shapes/base/Shape";
+import { RigidBody } from "../RigidBody";
+import { AABBAABBAlgorithm, AABBCircleAlgorithm, AABBPolygonAlgorithm } from "./AABB/AABBCollisions";
+import { CircleCircleAlgorithm, CircleAABBAlgorithm, CirclePolygonAlgorithm } from "./circle/CircleCollisions";
+import { PolygonAABBAlgorithm, PolygonCircleAlgorithm, PolygonPolygonAlgorithm } from "./polygon/PolygonCollisions";
+import { RectangleRectangleAlgorithm } from "./rectangle/RectangleCollision";
+import { TrapezoidTrapezoidAlgorithm } from "./trapezoid/TrapezoidCollision";
 
 /**
  * Interface for collision detection algorithms
@@ -76,8 +82,6 @@ export interface AABB {
     maxX: number;
     maxY: number;
 }
-
-import { RigidBody } from "../RigidBody";
 
 /**
  * Main collision detection system
@@ -154,82 +158,3 @@ export class CollisionSystem {
         return `${ShapeType[types[0]]}_${ShapeType[types[1]]}`;
     }
 }
-
-// Collision algorithm implementations (to be implemented)
-
-class AABBAABBAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement AABB vs AABB collision
-        return null;
-    }
-}
-
-class AABBCircleAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement AABB vs Circle collision
-        return null;
-    }
-}
-
-class AABBPolygonAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement AABB vs Polygon collision using SAT
-        return null;
-    }
-}
-
-class CircleCircleAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement Circle vs Circle collision
-        return null;
-    }
-}
-
-class CircleAABBAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement Circle vs AABB collision (reverse of AABB vs Circle)
-        return null;
-    }
-}
-
-class CirclePolygonAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement Circle vs Polygon collision
-        return null;
-    }
-}
-
-class PolygonPolygonAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement Polygon vs Polygon collision using SAT
-        return null;
-    }
-}
-
-class PolygonAABBAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement Polygon vs AABB collision (reverse of AABB vs Polygon)
-        return null;
-    }
-}
-
-class PolygonCircleAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement Polygon vs Circle collision (reverse of Circle vs Polygon)
-        return null;
-    }
-}
-
-class RectangleRectangleAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement Rectangle vs Rectangle collision
-        return null;
-    }
-}
-
-class TrapezoidTrapezoidAlgorithm implements CollisionAlgorithm {
-    detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement Trapezoid vs Trapezoid collision
-        return null;
-    }
-} 

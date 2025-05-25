@@ -23,7 +23,7 @@ export class CollisionInfo {
     
     /** Direction of collision (from A to B), normalized */
     public normal: Vector;
-    
+
     /** Penetration depth of the collision */
     public depth: number;
     

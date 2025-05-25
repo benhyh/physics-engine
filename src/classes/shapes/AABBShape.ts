@@ -129,49 +129,6 @@ export class AABBShape extends Shape {
     }
 
     /**
-     * TODO: Implement AABB intersection detection with other shapes
-     * 
-     * This method should determine if this AABB intersects/overlaps with another shape.
-     * The implementation should handle different shape types appropriately.
-     * 
-     * Shape type considerations:
-     * 1. AABB vs AABB: Use simple box-box overlap test
-     *    - Check if boxes overlap on both X and Y axes
-     *    - Overlap exists if: (this.minX <= other.maxX && this.maxX >= other.minX) &&
-     *                        (this.minY <= other.maxY && this.maxY >= other.minY)
-     * 
-     * 2. AABB vs Circle: Use circle-rectangle collision detection
-     *    - Find closest point on AABB to circle center
-     *    - Check if distance from circle center to closest point <= circle radius
-     *
-     * 3. AABB vs Polygon: Use Separating Axis Theorem (SAT)
-     *    - Test all edge normals of both shapes as potential separating axes
-     *    - If any axis separates the shapes, they don't intersecs
-     * 
-     * Performance considerations:
-     * - For AABB vs AABB, use fast axis-aligned overlap test (avoid SAT overhead)
-     * - Consider early exit strategies for non-overlapping bounding boxes
-     * 
-     * Edge cases: 
-     * - Handle degenerate shapes (zero area)
-     * - Shapes that are touching but not overlapping (decide if this counts as intersection)
-     * 
-     * @param shape - The other shape to test intersection against
-     * @returns boolean - true if shapes intersect, false otherwise
-     */
-    intersects(shape: Shape): boolean {
-        switch(shape.getType()) {
-                        case ShapeType.AABB:                const otherAABB = shape as AABBShape;                return ((this.minX <= otherAABB.maxX && this.maxX >= otherAABB.minX) &&                    (this.minY <= otherAABB.maxY && this.maxY >= otherAABB.minY))
-            case ShapeType.CIRCLE:
-                return this.intersectsCircle(shape as CircleShape);
-            case ShapeType.POLYGON:
-                return this.intersectsPolygon(shape as PolygonShape);
-            default:
-                return false;
-        }
-    } 
-
-    /**
      * AABB vs Circle: Use circle-rectangle collision detection
      * - Find closest point on AABB to circle center
      * - CHeck if distance from circle center to closest point <= circle radius
@@ -191,17 +148,6 @@ export class AABBShape extends Shape {
         const distance = Math.sqrt(x*x + y*y);
 
         return distance <= radius;
-    }
-
-    /**
-     * 3. AABB vs Polygon: Use Separating Axis Theorem (SAT)
-     * - Test all edge normals of both shapes as potential separating axes
-     * If any axis separates the shapes, they don't intersects
-     * @param polygon 
-     * @returns 
-     */
-    intersectsPolygon(polygon: PolygonShape): boolean {
-        return false;
     }
 
     getAABB(): AABB {

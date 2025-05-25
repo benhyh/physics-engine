@@ -11,8 +11,8 @@
  * @category Core
  */
 
-import { CollisionInfo } from "@/classes/collision/CollisionInfo";
-import { SATCollisionDetector } from "@/classes/collision/SATCollisionDetector";
+import { CollisionInfo } from "@/classes/collisions/CollisionInfo";
+import { SATCollisionDetector } from "@/classes/collisions/SATCollisionDetector";
 import { RigidBody } from "@/classes/RigidBody";
 import { AABB } from "@/classes/shapes/base/Shape";
 import { isFinite } from "lodash";
