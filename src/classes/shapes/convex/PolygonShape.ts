@@ -1,8 +1,9 @@
-import { Shape, ShapeType, AABB } from "./base/Shape";
-import { Vector } from "../Vector";
-import { CircleShape } from "./convex/CircleShape";
+import { Shape, ShapeType, AABB } from "../base/Shape";
+import { Vector } from "../../Vector";
+import { CircleShape } from "./CircleShape";
+import { IShape } from "../../components/PhysicsEntity";
 
-export class PolygonShape extends Shape {
+export class PolygonShape extends Shape implements IShape {
     private sides: number;
     private radius: number;
     private vertices: Vector[] = [];
@@ -40,6 +41,63 @@ export class PolygonShape extends Shape {
         return this.vertices;
     }
 
+    getBounds(): AABB {
+        return this.getAABB();
+    }
+
+    containsPoint(point: Vector): boolean {
+        // Ray casting algorithm for point-in-polygon test
+        let inside = false;
+        const vertices = this.vertices;
+        
+        for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+            const xi = vertices[i].x, yi = vertices[i].y;
+            const xj = vertices[j].x, yj = vertices[j].y;
+            
+            if (((yi > point.y) !== (yj > point.y)) &&
+                (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi)) {
+                inside = !inside;
+            }
+        }
+        
+        return inside;
+    }
+
+    getArea(): number {
+        // Shoelace formula for polygon area
+        let area = 0;
+        const vertices = this.vertices;
+        
+        for (let i = 0; i < vertices.length; i++) {
+            const j = (i + 1) % vertices.length;
+            area += vertices[i].x * vertices[j].y;
+            area -= vertices[j].x * vertices[i].y;
+        }
+        
+        return Math.abs(area) / 2;
+    }
+
+    getCentroid(): Vector {
+        // Calculate centroid of polygon
+        let cx = 0, cy = 0;
+        let area = 0;
+        const vertices = this.vertices;
+        
+        for (let i = 0; i < vertices.length; i++) {
+            const j = (i + 1) % vertices.length;
+            const cross = vertices[i].x * vertices[j].y - vertices[j].x * vertices[i].y;
+            area += cross;
+            cx += (vertices[i].x + vertices[j].x) * cross;
+            cy += (vertices[i].y + vertices[j].y) * cross;
+        }
+        
+        area /= 2;
+        cx /= (6 * area);
+        cy /= (6 * area);
+        
+        return new Vector(cx, cy);
+    }
+
     private calculateVertices(): void {
         this.vertices = [];
         for (let i = 0; i < this.sides; i++) {
@@ -51,8 +109,7 @@ export class PolygonShape extends Shape {
     }
 
     contains(point: Vector): boolean {
-        // Placeholder - implement actual logic
-        return false;
+        return this.containsPoint(point);
     }
 
     intersects(shape: Shape): boolean {

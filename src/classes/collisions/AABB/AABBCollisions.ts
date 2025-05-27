@@ -93,6 +93,7 @@ export class AABBCircleAlgorithm implements CollisionAlgorithm {
                 return null;
             }
 
+
             const aabbBounds = aabbEntity.getWorldAABB();
             const circleCenter = circleEntity.shape.getCentroid();
             const circleBounds = circleEntity.shape.getBounds();
@@ -146,7 +147,7 @@ export class AABBCircleAlgorithm implements CollisionAlgorithm {
                 closestPoint
             );
         } catch (e) {
-            console.log(e);
+            console.log(e); 
             return null;
         }
     }
@@ -154,11 +155,122 @@ export class AABBCircleAlgorithm implements CollisionAlgorithm {
 
 export class AABBPolygonAlgorithm implements CollisionAlgorithm {
     detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement AABB vs Polygon collision using SAT
+        // TODO: Implement AABB vs Polygon collision using SATS  
         // Test all edge normals of both shapes as potential seperating axes
         // If any axis seperates the shapes, they don't interesect
 
+        let aabbEntity: PhysicsEntity;
+        let polygonEntity: PhysicsEntity;
 
+
+        try {
+
+            if (entityA.shape.type === ShapeType.AABB && entityB.shape.type === ShapeType.POLYGON) {
+                aabbEntity = entityA;
+                polygonEntity = entityB;
+            } else if (entityA.shape.type === ShapeType.POLYGON && entityB.shape.type === ShapeType.AABB) {
+                aabbEntity = entityB;
+                polygonEntity = entityA;
+            } else {
+                return null;
+            } 
+
+            // TODO: getting collision axes from both shapes
+            const axes = this.calculateCollisionAxes(aabbEntity, polygonEntity);
+            
+            // TODO SAT loop (similiar to SATCollisionDector but customized)
+            let minOverlap = Infinity;
+            let minOverlapAxis: Vector | null = null;
+
+            for (const axis of axes) {
+                const aabbProjection = aabbEntity.shape.project(axis);
+                const polygonProjection = polygonEntity.shape.project(axis);
+
+                const overlap = this.calculateOverlap(aabbProjection, polygonProjection);
+
+                if (overlap <= 0) {
+                    return null;
+                }
+
+                if (overlap < minOverlap) {
+                    minOverlap = overlap;
+                    minOverlapAxis = axis;
+                }
+            }
+
+            const contactPoint = this.calculateContactPoint(aabbEntity, polygonEntity, minOverlapAxis!);
+
+            let normal= minOverlapAxis!;
+            if (aabbEntity === entityB) {
+                normal = normal.multiply(-1);
+            }
+
+            return new CollisionInfo(
+                entityA.body,
+                entityB.body,
+                normal,
+                minOverlap,
+                contactPoint
+            );
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
         return null;
     }
+
+    private calculateCollisionAxes(aabbEntity: PhysicsEntity, polygonEntity: PhysicsEntity): Vector[] {
+        const axes: Vector[] = []
+
+        // TODO: AABB contributes 2 axes (always the same)
+        axes.push(new Vector(1, 0)) // x-axis
+        axes.push(new Vector(0, 1)) // y-axis
+
+        const polygonVertices = polygonEntity.shape.getVertices();
+
+        for (let i = 0; i < polygonVertices.length; i++) {
+            const current = polygonVertices[i];
+            const next = polygonVertices[(i + 1) % polygonVertices.length];
+
+            const edge = next.subtract(current);
+
+            const normal = new Vector(-edge.y, edge.x).normalize();
+            axes.push(normal);
+        }
+
+        return axes;
+    }
+
+    private calculateOverlap(
+        projA: {min: number, max: number}, 
+        projB: {min: number, max: number}
+    ): number {
+        if (projA.max < projB.min || projB.max < projA.min) {
+            return 0; 
+        }
+        
+        return Math.min(projA.max - projB.min, projB.max - projA.min);
+    }
+
+    // TODO: Implement contact point calculation
+    private calculateContactPoint(
+        aabbEntity: PhysicsEntity, 
+        polygonEntity: PhysicsEntity, 
+        axis: Vector
+    ): Vector {
+        const aabbBounds = aabbEntity.shape.getBounds(); 
+        const polygonBounds = polygonEntity.shape.getBounds(); 
+        
+        // TODO: Simple approximation - center of overlap region
+        const overlapMinX = Math.max(aabbBounds.minX, polygonBounds.minX);
+        const overlapMinY = Math.max(aabbBounds.minY, polygonBounds.minY);
+        const overlapMaxX = Math.min(aabbBounds.maxX, polygonBounds.maxX);
+        const overlapMaxY = Math.min(aabbBounds.maxY, polygonBounds.maxY);
+        
+        return new Vector(
+            (overlapMinX + overlapMaxX) / 2,
+            (overlapMinY + overlapMaxY) / 2
+        );
+    }
+    
 }

@@ -8,6 +8,9 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "docs": "typedoc --entryPointStrategy expand --entryPoints src/classes/Vector.ts src/classes/RigidBody.ts src/classes/ForceRegistry.ts src/classes/forces/base/Force.ts src/classes/forces/basic/DampingForce.ts src/classes/forces/basic/GravityForce.ts src/classes/forces/basic/SpringForce.ts src/classes/integration/Euler.ts src/classes/integration/VelocityVerlet.ts",
     "docs:watch": "typedoc --watch"
   },
@@ -35,8 +38,12 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
     "typedoc": "^0.28.4",
     "typescript": "^5.2.2",
     "vite": "^5.1.6"
