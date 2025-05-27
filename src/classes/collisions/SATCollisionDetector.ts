@@ -18,7 +18,7 @@
 import { Shape, ShapeType } from "../shapes/base/Shape";
 import { CollisionInfo } from "./CollisionInfo";
 import { Vector } from "../Vector";
-import { CircleShape } from "../shapes/CircleShape";
+import { CircleShape } from "../shapes/convex/CircleShape";
 import { PolygonShape } from "../shapes/PolygonShape";
 import { RectangleShape } from "../shapes/RectangleShape";
 import { TrapezoidShape } from "../shapes/TrapezoidShape";

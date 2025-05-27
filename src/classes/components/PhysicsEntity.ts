@@ -14,18 +14,16 @@ import { RigidBody } from "../RigidBody";
 import { Transform } from "./Transform";
 import { Material } from "./Material";
 import { Vector } from "../Vector";
-import { AABB } from "../shapes/base/Shape";
+import { AABB, ShapeType } from "../shapes/base/Shape";
 
 /**
  * Pure geometry interface - no collision logic
  */
 export interface IShape {
-    readonly type: import("../shapes/base/Shape").ShapeType;
+    readonly type: ShapeType
     getBounds(): AABB;
     getVertices(): Vector[];
     containsPoint(point: Vector): boolean;
-    
-    // Geometric operations only
     project(axis: Vector): { min: number, max: number };
     getArea(): number;
     getCentroid(): Vector;

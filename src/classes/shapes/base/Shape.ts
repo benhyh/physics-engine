@@ -44,8 +44,8 @@ export interface AABB {
 }
 
 export abstract class Shape {
+    public type: ShapeType;
     protected position: Vector;
-    protected type: ShapeType;
     protected rotation: Vector;
     protected parent: RigidBody | null;
 

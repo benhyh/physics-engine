@@ -1,10 +1,8 @@
-import { Shape, ShapeType, AABB } from "./base/Shape";
-import { Vector } from "../Vector";
-import { RectangleShape } from "./RectangleShape";
-import { TrapezoidShape } from "./TrapezoidShape";
-import { PolygonShape } from "./PolygonShape";
+import { Shape, ShapeType, AABB } from "../base/Shape";
+import { Vector } from "../../Vector";
+import { IShape } from "../../components/PhysicsEntity";
 
-export class CircleShape extends Shape {
+export class CircleShape extends Shape implements IShape {
     public center: Vector;
     public radius: number;
 
@@ -17,11 +15,11 @@ export class CircleShape extends Shape {
         this.center = center;
     }
 
-    getCenter(): Vector {
+    getCentroid(): Vector {
         return this.center;
     }
 
-    setCenter(center: Vector): void {
+    setCentroid(center: Vector): void {
         this.center = center;
     }
 
@@ -33,29 +31,6 @@ export class CircleShape extends Shape {
         this.radius = radius;
     }
 
-    contains(point: Vector): boolean {
-        return false;
-    }
-
-    intersects(shape: Shape): boolean {
-        switch(shape.getType()) {
-            case ShapeType.CIRCLE:
-                // Circle-circle collision
-                const otherCircle = shape as CircleShape;
-                const distance = this.center.subtract(otherCircle.center).magnitude();
-                return distance <= this.radius + otherCircle.radius;
-            case ShapeType.RECTANGLE:
-                return this.intersectsRectangle(shape as RectangleShape)
-            case ShapeType.TRAPEZOID:
-                return this.intersectsTrapezoid(shape as TrapezoidShape);
-            case ShapeType.POLYGON:
-                return this.intersectsPolygon(shape as PolygonShape);
-            default:
-                return false;
-        }
-
-    }
-
     getAABB(): AABB {
         return {
             minX: 0,
@@ -64,6 +39,30 @@ export class CircleShape extends Shape {
             maxY: 0
         }
     }
+
+    getBounds(): AABB {
+        return {
+            minX: this.center.x - this.radius,
+            maxX: this.center.x + this.radius,
+            minY: this.center.y - this.radius,
+            maxY: this.center.y + this.radius
+        }
+    }
+
+    getVertices(): Vector[] {
+        return [this.center];
+    }
+
+    containsPoint(point: Vector): boolean {
+        const distance = this.center.subtract(point).magnitude();
+    
+        return distance <= this.radius;
+    }
+
+    getArea(): number {
+        return Math.PI * (this.radius * this.radius);
+    }
+
 
     /**
      * Standard rectangle-AABB collision 

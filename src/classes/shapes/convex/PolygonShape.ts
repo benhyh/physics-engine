@@ -1,6 +1,6 @@
 import { Shape, ShapeType, AABB } from "./base/Shape";
 import { Vector } from "../Vector";
-import { CircleShape } from "./CircleShape";
+import { CircleShape } from "./convex/CircleShape";
 
 export class PolygonShape extends Shape {
     private sides: number;

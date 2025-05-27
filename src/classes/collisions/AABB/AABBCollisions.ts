@@ -4,6 +4,7 @@ import { PhysicsEntity } from "@/classes/components/PhysicsEntity";
 import { AABB, CollisionAlgorithm } from "../CollisionSystem";
 import { CollisionInfo } from "../CollisionInfo";
 import { Vector } from "@/classes/Vector";
+import { Shape, ShapeType } from "@/classes/shapes/base/Shape";
 
 export class AABBAABBAlgorithm implements CollisionAlgorithm {
     detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
@@ -27,7 +28,7 @@ export class AABBAABBAlgorithm implements CollisionAlgorithm {
                 depth = overlapX;
 
                 const centerAX = (aabbA.minX + aabbA.maxX) / 2;
-                const centerBX = (aabbB.minX + aabbA.maxX) / 2;
+                const centerBX = (aabbB.minX + aabbB.maxX) / 2;
 
                 normal = new Vector(centerAX < centerBX ? 1 : -1, 0);
             } else {
@@ -78,13 +79,76 @@ export class AABBAABBAlgorithm implements CollisionAlgorithm {
 
 export class AABBCircleAlgorithm implements CollisionAlgorithm {
     detect(entityA: PhysicsEntity, entityB: PhysicsEntity): CollisionInfo | null {
-        // TODO: Implement AABB vs Circle collision
-        // Find closest point on AABB to circle center
-        // Check if distance from cirlce center to closest point <= circle radius
+        let aabbEntity: PhysicsEntity;
+        let circleEntity: PhysicsEntity;
 
+        try {
+            if (entityA.shape.type === ShapeType.AABB && entityB.shape.type === ShapeType.CIRCLE) {
+                aabbEntity = entityA;
+                circleEntity = entityB;
+            } else if (entityA.shape.type === ShapeType.CIRCLE && entityB.shape.type === ShapeType.AABB) {
+                aabbEntity = entityB;
+                circleEntity = entityA;
+            } else {
+                return null;
+            }
 
+            const aabbBounds = aabbEntity.getWorldAABB();
+            const circleCenter = circleEntity.shape.getCentroid();
+            const circleBounds = circleEntity.shape.getBounds();
+            const circleRadius = (circleBounds.maxX - circleBounds.minX) / 2;
+            const worldCircleCenter = circleEntity.transform.transformPoint(circleCenter);
 
-        return null;
+            const closestX = Math.max(aabbBounds.minX, Math.min(worldCircleCenter.x, aabbBounds.maxX));
+            const closestY = Math.max(aabbBounds.minY, Math.min(worldCircleCenter.y, aabbBounds.maxY));
+            const closestPoint = new Vector(closestX, closestY);
+
+            const distance = worldCircleCenter.subtract(closestPoint);
+            const distanceMagnitude = distance.magnitude();
+
+            if (distanceMagnitude > circleRadius) {
+                return null;
+            }
+
+            let normal: Vector;
+            if (distanceMagnitude === 0) {
+                const distToLeft = worldCircleCenter.x - aabbBounds.minX;
+                const distToRight = aabbBounds.maxX - worldCircleCenter.x;
+                const distToTop = worldCircleCenter.y - aabbBounds.minY;
+                const distToBottom = aabbBounds.maxY - worldCircleCenter.y;
+                
+                const minDist = Math.min(distToLeft, distToRight, distToTop, distToBottom);
+
+                if (minDist === distToLeft) {
+                    normal = new Vector(-1, 0);
+                } else if (minDist === distToRight) {
+                    normal = new Vector(1, 0);
+                } else if (minDist === distToTop) {
+                    normal = new Vector(0, -1);
+                } else {
+                    normal = new Vector(0, 1);
+                }
+            } else {
+                normal = distance.normalize();
+            }
+
+            if (aabbEntity === entityB) {
+                normal = normal.multiply(-1);
+            }
+
+            const depth = circleRadius - distanceMagnitude;
+
+            return new CollisionInfo(
+                entityA.body,
+                entityB.body,
+                normal,
+                depth,
+                closestPoint
+            );
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
     }
 }
 
