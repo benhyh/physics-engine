@@ -45,7 +45,8 @@ export class AABBAABBAlgorithm implements CollisionAlgorithm {
             const overlapMinY = Math.max(aabbA.minY, aabbB.minY);
             const overlapMaxX = Math.min(aabbA.maxX, aabbB.maxX);
             const overlapMaxY = Math.min(aabbA.maxY, aabbB.maxY);
-            
+
+     
             const contactPoint = new Vector(
                 (overlapMinX + overlapMaxX) / 2,
                 (overlapMinY + overlapMaxY) / 2
@@ -92,7 +93,6 @@ export class AABBCircleAlgorithm implements CollisionAlgorithm {
             } else {
                 return null;
             }
-
 
             const aabbBounds = aabbEntity.getWorldAABB();
             const circleCenter = circleEntity.shape.getCentroid();
