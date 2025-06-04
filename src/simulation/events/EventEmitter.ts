@@ -47,25 +47,52 @@ export class EventEmitter {
     }
 
     /**
+     * Add a one-time event listener that will be automatically removed after first execution
+     * @param eventType - The type of event to listen for
+     * @param listener - The callback function to execute once
+     */
+    once<T extends SimulationEvent>(
+        eventType: T['type'], 
+        listener: EventListener<T>
+    ): void {
+        const existingEvent = this.oneTimeListeners.get(eventType);
+
+        if (existingEvent) {
+            existingEvent.push(listener as EventListener);
+        } else {
+            this.oneTimeListeners.set(eventType, [listener as EventListener]);
+        }
+
+        if (this.debugMode) {
+            console.log(`EventEmitter: Registered one-time listener for '${eventType}'`);
+        }
+    }
+
+    /**
      * Emit an event to all registered listeners
      * @param event - The event object to emit
      */
     emit<T extends SimulationEvent>(event: T): void {
         const listenersForThisEvent = this.listeners.get(event.type);
-
-        if (!listenersForThisEvent) {
-            return;
+        if (listenersForThisEvent) {
+            for (const listener of listenersForThisEvent) {
+                listener(event);
+            }
         }
 
-        for (const listener of listenersForThisEvent) {
-            listener(event);
+        const oneTimeListenersForThisEvent = this.oneTimeListeners.get(event.type);
+        if (oneTimeListenersForThisEvent) {
+            for (const listener of oneTimeListenersForThisEvent) {
+                listener(event);
+            }
+            this.oneTimeListeners.delete(event.type);
         }
     }
 
     /**
      * Remove a specific event listener
      * @param eventType - The type of event to stop listening for
-     * @param listener - The specific listener function to remove
+     * @param listener - The specific listener function to remove                  
      */
     off<T extends SimulationEvent>(
         eventType: T['type'], 
@@ -82,8 +109,8 @@ export class EventEmitter {
     }
 
     /**
-     * Get the number of listeners for a specific event type
-     */
+    * Get the number of listeners for a specific event type
+    */
     listenerCount(eventType: string): number {
         const regularCount = this.listeners.get(eventType)?.length || 0;
         const oneTimeCount = this.oneTimeListeners.get(eventType)?.length || 0;
