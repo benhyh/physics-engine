@@ -85,33 +85,3 @@ export class Timer {
     }
 }
 
-/**
- * REAL-WORLD EXAMPLE: How Timer is used in a game loop
- * 
- * ```typescript
- * const timer = new Timer();
- * const physicsWorld = new PhysicsWorld();
- * 
- * function gameLoop() {
- *     // Get time since last frame (in seconds)
- *     const deltaTime = timer.getDeltaTime();
- *     
- *     // Update physics with consistent timing
- *     physicsWorld.step(deltaTime);
- *     
- *     // Update animations based on total time
- *     const totalTime = timer.getTotalTime();
- *     rotateObject(totalTime * 45); // 45 degrees per second
- *     
- *     // Performance monitoring
- *     const fps = timer.calculateFPS(deltaTime);
- *     if (fps < 30) console.warn("Low FPS detected!");
- *     
- *     // Schedule next frame
- *     requestAnimationFrame(gameLoop);
- * }
- * 
- * timer.reset(); // Start the timer
- * gameLoop(); // Begin the simulation
- * ```
- */ 

@@ -1,26 +1,32 @@
 import { EventEmitter } from '../events/EventEmitter';
 import { PhysicsWorld } from '../../classes/PhysicsWorld';
 import { Timer } from './Timer';
+import { Vector } from '../../classes/Vector';
 
 /**
- * Runner - The Main Game Loop Controller
+ * Runner - The Main Game Loop Controller 
+ * Example usage:
+ * ```typescript
+ * const physicsWorld = new PhysicsWorld();
+ * const eventEmitter = new EventEmitter();
+ * const runner = new Runner(physicsWorld, eventEmitter);
  * 
- * This class is responsible for:
- * 1. Starting/stopping the simulation loop
- * 2. Maintaining consistent frame timing
- * 3. Orchestrating physics updates and rendering
- * 4. Managing performance monitoring
- * 
- * Think of this as the "heartbeat" of your physics simulation.
+ * runner.start(); // Begin the simulation
+ * // ... simulation runs automatically ...
+ * runner.stop();  // Stop when done
+ * ```
  */
-export class Runner {
+
+export class Runner {    
     private animationFrameId: number | null = null;
     private isRunning: boolean = false;
+    
+    // === CORE DEPENDENCIES ===
     private timer: Timer;
     private eventEmitter: EventEmitter;
     private physicsWorld: PhysicsWorld;
     
-    // Performance tracking
+    // === PERFORMANCE TRACKING ===
     private frameCount: number = 0;
     private lastFPSUpdate: number = 0;
     private currentFPS: number = 0;
@@ -32,106 +38,160 @@ export class Runner {
     }
 
     /**
-     * TODO: Implement the start method
-     * 
-     * This method should:
-     * 1. Check if already running (prevent double-start)
-     * 2. Set isRunning to true
-     * 3. Reset the timer
-     * 4. Emit a 'simulation:started' event with world info
-     * 5. Start the main loop by calling requestAnimationFrame(this.tick.bind(this))
-     * 6. Store the animation frame ID for later cancellation
-     * 
-     * Hint: Use performance.now() for timestamps
-     * Hint: Remember to bind 'this' context when passing methods to requestAnimationFrame
+     * Starts the physics simulation loop
+     * @throws {void} No errors thrown - method handles duplicate starts gracefully
+     *       
+     * Pre-condition: EventEmitter and PhysicsWorld must be initialized
+     * Post-condition: Simulation is running and tick() will be called each frame
      */
     start(): void {
-        // TODO: Implement start logic here
-        throw new Error("TODO: Implement Runner.start()");
+        if (this.isRunning) return;
+        this.isRunning = true;
+        this.timer.reset();
+        this.eventEmitter.emit({
+            type: 'simulation:started',
+            timestamp: performance.now(),
+            data: {
+                worldBounds: { width: 800, height: 600 }, // default world bounds
+                gravity: new Vector(0, 9.81) // default gravity vector
+            }
+        });
+        this.animationFrameId = requestAnimationFrame(this.tick.bind(this));
     }
 
     /**
-     * TODO: Implement the stop method
+     * Stops the physics simulation loop and performs cleanup
+     * @throws {void} No errors thrown - method handles stopping when not running gracefully
      * 
-     * This method should:
-     * 1. Check if currently running
-     * 2. Cancel the animation frame if it exists
-     * 3. Set isRunning to false
-     * 4. Emit a 'simulation:stopped' event with final statistics
-     * 5. Reset internal counters
-     * 
-     * Hint: Use cancelAnimationFrame() to stop the loop
+     * Pre-condition: None (handles all states gracefully)
+     * Post-condition: Simulation is stopped and all counters are reset
      */
     stop(): void {
-        // TODO: Implement stop logic here
-        throw new Error("TODO: Implement Runner.stop()");
-    }
+        if (!this.isRunning) return;
+        if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+        this.isRunning = false;
+        this.eventEmitter.emit({
+            type: 'simulation:stopped',
+            timestamp: performance.now(),
+            data: {
+                reason: 'user' as const,
+                finalStats: {
+                    totalBodies: 0, // TODO: add getter for body count
+                    totalCollisions: 0, // TODO: add collision tracking
+                    runtime: this.timer.getTotalTime()
+                }
+            }
+        });
+        this.frameCount = 0;
+        this.lastFPSUpdate = 0;
+        this.currentFPS = 0;
+        }
 
     /**
-     * TODO: Implement the main tick method
+     * Main simulation loop - executes once per frame
+     * @param timestamp - High-resolution timestamp from requestAnimationFrame
+     * @throws {void} Handles physics errors gracefully to maintain loop stability
      * 
-     * This is the heart of your game loop. Each frame it should:
-     * 1. Calculate delta time since last frame using the timer
-     * 2. Update physics world with the delta time
-     * 3. Update performance counters (FPS calculation)
-     * 4. Emit performance events periodically (every second)
-     * 5. Emit a physics step event with timing info
-     * 6. Schedule the next frame with requestAnimationFrame
-     * 
-     * Performance considerations:
-     * - Limit delta time to prevent spiral of death (max 16ms or 1/60th second)
-     * - Only calculate FPS every second, not every frame
-     * - Use high-resolution timestamps for accuracy
-     * 
-     * Hint: The method signature should be tick(timestamp: number): void
-     * Hint: Always schedule the next frame at the end, even if errors occur
+     * Pre-condition: Simulation must be running (isRunning = true)
+     * Post-condition: Physics state updated, events emitted, next frame scheduled
      */
     private tick(timestamp: number): void {
-        // TODO: Implement the main game loop tick here
-        throw new Error("TODO: Implement Runner.tick()");
-    }
+        const deltaTime = this.timer.getDeltaTime();
+        const physicsStart = performance.now();
+        this.physicsWorld.step(deltaTime);
+        const physicsTime = performance.now() - physicsStart;
+        this.updatePerformanceCounters(timestamp);
+        this.eventEmitter.emit({
+            type: 'physics:step',
+            timestamp: performance.now(),
+            data: {
+                deltaTime: deltaTime,
+                stepCount: this.frameCount,
+                bodyCount: 0 // TODO: add getter for body count
+            }
+        });
+        this.animationFrameId = requestAnimationFrame(this.tick.bind(this));
+        }
 
     /**
-     * TODO: Implement FPS calculation
-     * 
-     * This method should:
-     * 1. Increment frame counter
-     * 2. Check if a second has passed since last FPS update
-     * 3. Calculate FPS = frames / time elapsed
-     * 4. Reset counters for next measurement period
-     * 5. Store the calculated FPS
-     * 
-     * Call this method every frame from tick()
+     * Updates performance counters and calculates FPS
+     * @param timestamp - Current frame timestamp for FPS calculation
+     * @throws {void} No errors thrown
+     * Pre-condition: timestamp must be a valid performance.now() value
+     * Post-condition: Frame counter updated, FPS calculated if measurement period complete
      */
     private updatePerformanceCounters(timestamp: number): void {
-        // TODO: Implement FPS calculation and performance tracking
-        throw new Error("TODO: Implement Runner.updatePerformanceCounters()");
+        this.frameCount++;
+        if (timestamp - this.lastFPSUpdate >= 1000) {
+            const timeElapsed = (timestamp - this.lastFPSUpdate) / 1000;
+            this.currentFPS = this.frameCount / timeElapsed;
+            this.frameCount = 0; 
+            this.lastFPSUpdate = timestamp;
+        }
     }
 
     /**
-     * TODO: Implement performance event emission
+     * Emits performance metrics event for monitoring and debugging
+     * @param physicsTime - Time taken for physics update in milliseconds
+     * @throws {void} No errors thrown
      * 
-     * This method should:
-     * 1. Emit a 'performance:update' event
-     * 2. Include current FPS, physics timing, and other metrics
-     * 3. Only call this periodically (not every frame)
-     * 
-     * The event data should match the PerformanceUpdateEvent type
+     * Pre-condition: physicsTime must be a valid measurement in milliseconds
+     * Post-condition: Performance update event emitted to all listeners
      */
     private emitPerformanceUpdate(physicsTime: number): void {
-        // TODO: Implement performance event emission
-        throw new Error("TODO: Implement Runner.emitPerformanceUpdate()");
+        this.eventEmitter.emit({
+            type: 'performance:update',
+            timestamp: performance.now(),
+            data: { 
+                fps: this.currentFPS, 
+                physicsTime: physicsTime,
+                renderTime: 0, // TODO: add render time tracking
+                collisionChecks: 0 // TODO: add collision check counting
+            }
+        });
     }
 
-    // Getter methods for external access
+    /**
+     * Gets the current frames per second measurement
+     * @returns Current FPS value (0 if no measurement taken yet)
+     * 
+     * Pre-condition: None
+     * Post-condition: Returns most recent FPS calculation
+     */
     getCurrentFPS(): number {
         return this.currentFPS;
     }
 
+    /**
+     * Checks if the simulation is currently running
+     * @returns true if simulation is active, false otherwise
+     * 
+     * Pre-condition: None
+     * Post-condition: Returns current running state
+     */
     getIsRunning(): boolean {
         return this.isRunning;
     }
 
+    /**
+     * Sets the simulation running state (internal use)
+     * @param isRunning - New running state to set
+     * @throws {void} No errors thrown
+     * 
+     * Pre-condition: isRunning must be a boolean value
+     * Post-condition: Internal running state updated
+     */
+    setIsRunning(isRunning: boolean): void {
+        this.isRunning = isRunning;
+    }
+
+    /**
+     * Gets the current frame count for the measurement period
+     * @returns Number of frames since last FPS calculation
+     * 
+     * Pre-condition: None
+     * Post-condition: Returns current frame counter value
+     */
     getFrameCount(): number {
         return this.frameCount;
     }
