@@ -58,14 +58,14 @@ export class Runner {
         });
         this.animationFrameId = requestAnimationFrame(this.tick.bind(this));
     }
-
+    
     /**
      * Stops the physics simulation loop and performs cleanup
      * @throws {void} No errors thrown - method handles stopping when not running gracefully
      * 
      * Pre-condition: None (handles all states gracefully)
      * Post-condition: Simulation is stopped and all counters are reset
-     */
+     */ 
     stop(): void {
         if (!this.isRunning) return;
         if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
