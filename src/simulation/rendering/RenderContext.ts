@@ -3,6 +3,9 @@ import { Vector } from '../../classes/Vector';
 /**
  * RenderContext - The Coordinate System Translator
  * 
+ * Simplified for static 2D physics simulations.
+ * Converts between physics world coordinates and screen pixels.
+ * 
  * Example usage:
  * ```typescript
  * const context = new RenderContext();
@@ -10,11 +13,9 @@ import { Vector } from '../../classes/Vector';
  * 
  * // Physics has a ball at world position (2, 1) 
  * const worldPos = new Vector(2, 1);
- * const cameraPos = new Vector(0, 0);
- * const zoom = 1.0;
  * 
- * // Convert to screen for drawing
- * const screenPos = context.worldToScreen(worldPos, cameraPos, zoom);
+ * // Convert to screen for drawing (fixed camera at origin, 1.0 zoom)
+ * const screenPos = context.worldToScreen(worldPos);
  * // Now we can draw the ball at screenPos.x, screenPos.y pixels
  * ```
  */
@@ -76,61 +77,50 @@ export class RenderContext {
     }
 
     /**
+     * Converts physics world position to screen pixel position.
+     * 
+     * For static simulations: assumes camera at (0,0) and zoom of 1.0
+     * 
      * Example:
      * - World position: (2, 1) meters
-     * - Camera at: (0, 0) 
-     * - Zoom: 1.0, Scale: 50 pixels/meter
-     * - Screen: 800x600 pixels
+     * - Scale: 50 pixels/meter, Screen: 800x600 pixels
+     * - Result: (500, 250) pixels (right and above center)
      * 
-     * Calculation:
-     * - offsetX = (2 - 0) * 1 * 50 = 100 pixels
-     * - offsetY = (1 - 0) * 1 * 50 = 50 pixels  
-     * - screenX = 100 + 800/2 = 500 pixels (right of center)
-     * - screenY = -50 + 600/2 = 250 pixels (above center)
-     * 
-     * @param worldPos - Position in world coordinates (meters)
-     * @param cameraPos - Camera position in world coordinates
-     * @param zoom - Camera zoom factor (1.0 = normal, 2.0 = 2x zoomed in)
+     * @param worldPos - Position in world coordinates
      * @returns Position in screen coordinates (pixels)
      * 
-     * Pre-condition: All parameters must be valid Vector objects
+     * Pre-condition: worldPos must be a valid Vector
      * Post-condition: Returns valid screen coordinates for drawing
      */
-    worldToScreen(worldPos: Vector, cameraPos: Vector, zoom: number): Vector {
-        const offsetX = (worldPos.x - cameraPos.x) * zoom * this.pixelsPerUnit;
-        const offsetY = (worldPos.y - cameraPos.y) * zoom * this.pixelsPerUnit;
+    worldToScreen(worldPos: Vector): Vector {
+        const offsetX = worldPos.x * this.pixelsPerUnit;
+        const offsetY = worldPos.y * this.pixelsPerUnit;
         const screenX = offsetX + this.width / 2;
-        const screenY = -offsetY + this.height / 2;
+        const screenY = -offsetY + this.height / 2; // Flip Y axis
         return new Vector(screenX, screenY);
     }
 
     /**
-     * Example (inverse of worldToScreen):
-     * - Screen click: (500, 250) pixels
-     * - Camera at: (0, 0)
-     * - Zoom: 1.0, Scale: 50 pixels/meter
-     * - Screen: 800x600 pixels
+     * Converts screen pixel position to physics world position.
      * 
-     * Calculation:
-     * - offsetX = 500 - 800/2 = 100 pixels
-     * - offsetY = -(250 - 600/2) = -(-50) = 50 pixels
-     * - worldX = 100 / (1 * 50) + 0 = 2 meters
-     * - worldY = 50 / (1 * 50) + 0 = 1 meter
-     * - Result: (2, 1) 
+     * Useful for mouse interaction - when user clicks, convert click position to world coordinates.
+     * 
+     * Example:
+     * - Screen click: (500, 250) pixels
+     * - Scale: 50 pixels/meter, Screen: 800x600 pixels
+     * - Result: (2, 1) meters (2 units right, 1 unit up from world center)
      * 
      * @param screenPos - Position in screen coordinates (pixels)
-     * @param cameraPos - Camera position in world coordinates  
-     * @param zoom - Camera zoom factor
-     * @returns Position in world coordinates (meters)
+     * @returns Position in world coordinates
      * 
      * Pre-condition: screenPos must be valid screen coordinates
      * Post-condition: Returns valid world coordinates for physics
      */
-    screenToWorld(screenPos: Vector, cameraPos: Vector, zoom: number): Vector {
+    screenToWorld(screenPos: Vector): Vector {
         const offsetX = screenPos.x - this.width / 2;
-        const offsetY = -(screenPos.y - this.height / 2);
-        const worldX = offsetX / (zoom * this.pixelsPerUnit) + cameraPos.x;
-        const worldY = offsetY / (zoom * this.pixelsPerUnit) + cameraPos.y;
+        const offsetY = -(screenPos.y - this.height / 2); // Flip Y back
+        const worldX = offsetX / this.pixelsPerUnit;
+        const worldY = offsetY / this.pixelsPerUnit;
         return new Vector(worldX, worldY);
     }
 
