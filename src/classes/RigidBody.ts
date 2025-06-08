@@ -96,7 +96,7 @@ export class RigidBody {
      * 
      * This is used to calculate the moment of inertia and center of mass.
      */
-    public shape?: Shape;
+    public shape: Shape;
 
     /**
      * The inverse mass of the body.
@@ -132,7 +132,7 @@ export class RigidBody {
      * const body = new RigidBody(2, new Vector(100, 200));
      * ```
      */
-    constructor(mass: number = 1, position: Vector = new Vector(0,0), momentOfInertia: number = 1, shape?: Shape) {
+    constructor(mass: number = 1, position: Vector = new Vector(0,0), momentOfInertia: number = 1, shape: Shape) {
         this.mass = mass;
         this.position = position;
         this.momentOfInertia = momentOfInertia;

@@ -66,6 +66,20 @@ export class TrapezoidShape extends Shape {
         }
     }
 
+    getVertices(): Vector[] {
+        const topWidth = this.width;
+        const bottomWidth = this.width + (2 * this.slope * this.height);
+        
+        return [
+            // Top corners
+            new Vector(this.position.x - topWidth/2, this.position.y - this.height/2),
+            new Vector(this.position.x + topWidth/2, this.position.y - this.height/2),
+            // Bottom corners
+            new Vector(this.position.x + bottomWidth/2, this.position.y + this.height/2),
+            new Vector(this.position.x - bottomWidth/2, this.position.y + this.height/2)
+        ];
+    }
+
     getAABB(): AABB {
         const topWidth = this.width;
         const bottomWidth = this.width + (2 * this.slope * this.height);
@@ -80,18 +94,7 @@ export class TrapezoidShape extends Shape {
     }
 
     project(axis: Vector): { min: number, max: number } {
-        // Get the four corners of the trapezoid
-        const topWidth = this.width;
-        const bottomWidth = this.width + (2 * this.slope * this.height);
-        
-        const corners = [
-            // Top corners
-            new Vector(this.position.x - topWidth/2, this.position.y - this.height/2),
-            new Vector(this.position.x + topWidth/2, this.position.y - this.height/2),
-            // Bottom corners
-            new Vector(this.position.x - bottomWidth/2, this.position.y + this.height/2),
-            new Vector(this.position.x + bottomWidth/2, this.position.y + this.height/2)
-        ];
+        const corners = this.getVertices();
 
         let min = Infinity;
         let max = -Infinity;
@@ -107,18 +110,7 @@ export class TrapezoidShape extends Shape {
 
     getCollisionAxes(): Vector[] {
         const axes: Vector[] = [];
-        
-        const topWidth = this.width;
-        const bottomWidth = this.width + (2 * (this.height/this.slope));
-        
-        const corners = [
-            // Top corners
-            new Vector(this.position.x - topWidth/2, this.position.y - this.height/2),
-            new Vector(this.position.x + topWidth/2, this.position.y - this.height/2),
-            // Bottom corners
-            new Vector(this.position.x + bottomWidth/2, this.position.y + this.height/2),
-            new Vector(this.position.x - bottomWidth/2, this.position.y + this.height/2)
-        ];
+        const corners = this.getVertices();
         
         for (let i = 0; i < corners.length; i++) {
             const current = corners[i];

@@ -1,4 +1,7 @@
 import { Shape, ShapeType, AABB } from "../base/Shape";
+import { RectangleShape } from "./RectangleShape";
+import { TrapezoidShape } from "./TrapezoidShape";
+import { PolygonShape } from "./PolygonShape";
 import { Vector } from "../../Vector";
 import { IShape } from "../../components/PhysicsEntity";
 

@@ -166,6 +166,15 @@ export abstract class Renderer {
     public abstract drawRectangle(center: Vector, width: number, height: number, rotation: number, options?: RenderOptions): void;
 
     /**
+     * Draw a polygon defined by an array of vertices
+     * Must be implemented by concrete classes
+     * 
+     * @param vertices - Array of world coordinate vertices (should be in correct winding order)
+     * @param options - Rendering options
+     */
+    public abstract drawPolygon(vertices: Vector[], options?: RenderOptions): void;
+
+    /**
      * Draw a line between two world positions
      * Must be implemented by concrete classes
      * 
